@@ -1,5 +1,6 @@
 # Description: Main file to run the application
 
+# Importing the necessary libraries
 from tkinter import Tk
 from interface.gui import EnqueteurProApp
 
