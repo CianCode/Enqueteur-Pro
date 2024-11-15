@@ -11,7 +11,7 @@ class ReportController:
         VALUES (CURRENT_DATE, %s, %s) RETURNING id_report;
         """
         params = (content, investigation_id)
-        result = self.db.execute_query(query, params, fetch_results=True)
+        result = self.db.execute_query(query, params)
         return result[0][0] if result else None
 
     def delete_report(self, report_id):

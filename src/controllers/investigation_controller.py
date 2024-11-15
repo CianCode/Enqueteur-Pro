@@ -10,32 +10,24 @@ class InvestigationController:
             return
 
     def add_investigation(self, name, type_crime_id, status, date_open, date_close=None):
+        """
+        Add a new investigation to the database.
+
+        :param name: Name of the investigation.
+        :param type_crime_id: ID of the crime type.
+        :param status: Status of the investigation ('open' or 'closed').
+        :param date_open: Opening date of the investigation.
+        :param date_close: Closing date of the investigation (optional).
+        :return: ID of the inserted investigation if successful, None otherwise.
+        """
         query = """
         INSERT INTO Investigation (name, type_crime, status, date_open, date_close)
         VALUES (%s, %s, %s, %s, %s)
         RETURNING id_investigation;
         """
         params = (name, type_crime_id, status, date_open, date_close)
-
-        if self.db.conn:
-            result = self.db.execute_query(query, params, fetch_results=True)
-            print(f"Result from insert: {result}")  # Check if there's a result
-            if result:
-                investigation_id = result[0][0]
-                print(f"Investigation added with ID: {investigation_id}")
-
-                # Optionally verify the insert by fetching it back
-                verification_query = "SELECT * FROM Investigation WHERE id_investigation = %s;"
-                verification_result = self.db.execute_query(verification_query, (investigation_id,), fetch_results=True)
-                print(f"Verification Result: {verification_result}")
-
-                return investigation_id
-            else:
-                print("Failed to insert investigation.")
-                return None
-        else:
-            print("No active database connection.")
-            return None
+        result = self.db.execute_query(query, params)
+        return result[0][0] if result else None
 
     def delete_investigation(self, investigation_id):
         """Delete an investigation by its ID."""

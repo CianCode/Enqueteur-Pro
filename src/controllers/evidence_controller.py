@@ -11,7 +11,7 @@ class EvidenceController:
         VALUES (%s, %s) RETURNING id_evidence;
         """
         params = (type_evidence_id, description)
-        result = self.db.execute_query(query, params, fetch_results=True)
+        result = self.db.execute_query(query, params)
         return result[0][0] if result else None
 
     def delete_evidence(self, evidence_id):
