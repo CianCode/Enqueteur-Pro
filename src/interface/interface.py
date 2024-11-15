@@ -14,7 +14,7 @@ class DatabaseApp:
         self.root.geometry("400x200")
 
         # Create a label to display the PostgreSQL version
-        self.version_label = tk.Button(root, text="PostgreSQL Version will appear here.", font=("Arial", 14))
+        self.version_label = tk.Label(root, text="PostgreSQL Version will appear here.", font=("Arial", 14))
         self.version_label.pack(pady=20)
 
         # Create a button to trigger the database version check
