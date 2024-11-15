@@ -1,9 +1,6 @@
-# database_controller.py
-
 import os
 from dotenv import load_dotenv
 import psycopg2
-
 
 class DatabaseController:
     def __init__(self):
@@ -24,32 +21,38 @@ class DatabaseController:
     def connect(self):
         """Establish the connection to the database."""
         try:
-            # Construct the connection string
             conn_string = f"postgresql://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}"
-
-            # Establish the connection
             self.conn = psycopg2.connect(conn_string)
-
-            # Create a cursor object to interact with the database
             self.cursor = self.conn.cursor()
             print(f"Successfully connected to the database '{self.db_name}' as '{self.db_user}'.")
-
         except Exception as e:
             print(f"Error while connecting to the database: {e}")
+            self.conn = None  # Set to None if connection fails
+            raise
 
-    def execute_query(self, query, fetch_results=False):
+    def execute_query(self, query, params=None, fetch_results=False):
         """Execute a query on the database."""
+        if not self.conn or not self.cursor:
+            print("Database connection or cursor is not established.")
+            return None
+
         try:
-            # Execute the given query
-            self.cursor.execute(query)
+            if params is None:
+                params = ()
+
+            self.cursor.execute(query, params)
 
             if fetch_results:
-                # Fetch all the results if needed
                 results = self.cursor.fetchall()
                 return results
             else:
-                # Commit the transaction if no results are needed
                 self.conn.commit()
+
+        except Exception as e:
+            print(f"Error while executing the query: {e}")
+            self.conn.rollback()
+            raise  # re-raise the exception so it can be caught elsewhere
+
 
         except Exception as e:
             print(f"Error while executing the query: {e}")

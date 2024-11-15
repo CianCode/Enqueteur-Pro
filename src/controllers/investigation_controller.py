@@ -1,112 +1,118 @@
-import datetime
 from src.controllers.database_controller import DatabaseController
-
+from psycopg2 import sql
 
 class InvestigationController:
     def __init__(self):
-        """Initialize the Investigation Controller."""
         self.db = DatabaseController()
-        self.db.connect()
+        self.db.connect()  # Ensure connection is established before any DB operation
+        if self.db.conn is None:
+            print("Failed to establish database connection.")
+            return
 
-    def create_investigation(self, name, type_crime, status, date_open=None):
-        """
-        Create a new investigation.
-
-        :param name: The name of the investigation.
-        :param type_crime: The ID of the crime type (foreign key).
-        :param status: The status of the investigation ('open', 'closed').
-        :param date_open: The date the investigation was opened (optional, defaults to today).
-        :return: None
-        """
-        if not date_open:
-            date_open = datetime.date.today()
-
-        query = f"""
-        INSERT INTO Investigation (name, type_crime, status, date_open)
-        VALUES ('{name}', {type_crime}, '{status}', '{date_open}')
+    def add_investigation(self, name, type_crime_id, status, date_open, date_close=None):
+        query = """
+        INSERT INTO Investigation (name, type_crime, status, date_open, date_close)
+        VALUES (%s, %s, %s, %s, %s)
         RETURNING id_investigation;
         """
-        try:
-            result = self.db.execute_query(query, fetch_results=True)
-            print(f"Investigation created with ID: {result[0][0]}")
-        except Exception as e:
-            print(f"Error creating investigation: {e}")
+        params = (name, type_crime_id, status, date_open, date_close)
 
-    def get_investigation_by_id(self, investigation_id):
-        """
-        Retrieve an investigation by ID.
-
-        :param investigation_id: The ID of the investigation to retrieve.
-        :return: Investigation details or None if not found.
-        """
-        query = f"SELECT * FROM Investigation WHERE id_investigation = {investigation_id};"
-        try:
-            result = self.db.execute_query(query, fetch_results=True)
+        if self.db.conn:
+            result = self.db.execute_query(query, params, fetch_results=True)
+            print(f"Result from insert: {result}")  # Check if there's a result
             if result:
-                return result[0]
-            print(f"No investigation found with ID: {investigation_id}")
+                investigation_id = result[0][0]
+                print(f"Investigation added with ID: {investigation_id}")
+
+                # Optionally verify the insert by fetching it back
+                verification_query = "SELECT * FROM Investigation WHERE id_investigation = %s;"
+                verification_result = self.db.execute_query(verification_query, (investigation_id,), fetch_results=True)
+                print(f"Verification Result: {verification_result}")
+
+                return investigation_id
+            else:
+                print("Failed to insert investigation.")
+                return None
+        else:
+            print("No active database connection.")
             return None
-        except Exception as e:
-            print(f"Error retrieving investigation: {e}")
-            return None
-
-    def update_investigation(self, investigation_id, name=None, type_crime=None, status=None, date_close=None):
-        """
-        Update an investigation's details.
-
-        :param investigation_id: The ID of the investigation to update.
-        :param name: New name of the investigation (optional).
-        :param type_crime: New type of crime ID (optional).
-        :param status: New status ('open', 'closed') (optional).
-        :param date_close: New closing date (optional).
-        :return: None
-        """
-        updates = []
-        if name:
-            updates.append(f"name = '{name}'")
-        if type_crime:
-            updates.append(f"type_crime = {type_crime}")
-        if status:
-            updates.append(f"status = '{status}'")
-        if date_close:
-            updates.append(f"date_close = '{date_close}'")
-
-        if updates:
-            query = f"""
-            UPDATE Investigation
-            SET {', '.join(updates)}
-            WHERE id_investigation = {investigation_id};
-            """
-            try:
-                self.db.execute_query(query)
-                print(f"Investigation {investigation_id} updated successfully.")
-            except Exception as e:
-                print(f"Error updating investigation: {e}")
 
     def delete_investigation(self, investigation_id):
-        """
-        Delete an investigation by ID.
-
-        :param investigation_id: The ID of the investigation to delete.
-        :return: None
-        """
-        query = f"DELETE FROM Investigation WHERE id_investigation = {investigation_id};"
-        try:
-            self.db.execute_query(query)
-            print(f"Investigation {investigation_id} deleted successfully.")
-        except Exception as e:
-            print(f"Error deleting investigation: {e}")
+        """Delete an investigation by its ID."""
+        query = "DELETE FROM Investigation WHERE id_investigation = %s;"
+        params = (investigation_id,)
+        self.db.execute_query(query, params)
 
     def list_investigations(self):
-        """
-        Retrieve a list of all investigations.
+        """List all investigations in the database."""
+        query = "SELECT * FROM Investigation;"
+        result = self.db.execute_query(query, fetch_results=True)
+        return result
 
-        :return: A list of all investigations.
+    def update_investigation(self, investigation_id, name=None, type_crime_id=None, status=None, date_open=None, date_close=None):
+        """Update an investigation's details."""
+        set_clause = []
+        params = []
+
+        if name:
+            set_clause.append("name = %s")
+            params.append(name)
+        if type_crime_id:
+            set_clause.append("type_crime = %s")
+            params.append(type_crime_id)
+        if status:
+            set_clause.append("status = %s")
+            params.append(status)
+        if date_open:
+            set_clause.append("date_open = %s")
+            params.append(date_open)
+        if date_close:
+            set_clause.append("date_close = %s")
+            params.append(date_close)
+
+        # If there are fields to update
+        if set_clause:
+            query = sql.SQL("UPDATE Investigation SET {} WHERE id_investigation = %s;").format(
+                sql.SQL(", ").join(map(sql.Identifier, set_clause))
+            )
+            params.append(investigation_id)
+            self.db.execute_query(query, tuple(params))
+
+    def get_investigation_by_id(self, investigation_id):
+        """Get an investigation by its ID."""
+        query = "SELECT * FROM Investigation WHERE id_investigation = %s;"
+        params = (investigation_id,)
+        result = self.db.execute_query(query, params, fetch_results=True)
+        return result[0] if result else None
+
+    def list_investigation_for_reports(self, investigation_id):
+        """List all reports for a given investigation."""
+        query = "SELECT * FROM Report WHERE investigation_relation = %s;"
+        params = (investigation_id,)
+        result = self.db.execute_query(query, params, fetch_results=True)
+        return result
+
+    def list_investigation_for_people(self, investigation_id):
+        """List all people related to a given investigation (suspects, witnesses)."""
+        query = """
+        SELECT p.first_name, p.last_name, tp.label AS person_type
+        FROM Person p
+        JOIN TypePersonne tp ON p.type_personne = tp.id
+        JOIN Report r ON r.investigation_relation = p.id_personne
+        WHERE r.investigation_relation = %s;
         """
-        query = "SELECT * FROM investigation"
-        try:
-            result = self.db.execute_query(query, fetch_results=True)
-            return result
-        except Exception as e:
-            print(f"Error listing investigations: {e}")
-            return []
+        params = (investigation_id,)
+        result = self.db.execute_query(query, params, fetch_results=True)
+        return result
+
+    def list_investigation_for_evidences(self, investigation_id):
+        """List all evidences related to a given investigation."""
+        query = """
+        SELECT e.id_evidence, e.description, te.label AS evidence_type
+        FROM Evidence e
+        JOIN TypeEvidence te ON e.id_type_evidence = te.id_type_evidence
+        WHERE e.id_evidence IN (SELECT id_evidence FROM Report WHERE investigation_relation = %s);
+        """
+        params = (investigation_id,)
+        result = self.db.execute_query(query, params, fetch_results=True)
+        return result
