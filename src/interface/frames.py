@@ -25,7 +25,7 @@ class NavRoundedButton(ttk.Button):
         super().__init__(parent, text=text, command=command, style="Rounded.TButton", **kwargs)
 
 class Navbar(tk.Frame):
-    def __init__(self, parent, show_content1_callback, show_content2_callback, show_content3_callback):
+    def __init__(self, parent, show_content1_callback, show_content2_callback, show_content3_callback, show_content4_callback):
         super().__init__(parent, bg="#34495E", width=100)  # Dark blue background for navbar
         self.pack(side=tk.LEFT, fill=tk.Y, padx=5, pady=5)
 
@@ -41,6 +41,9 @@ class Navbar(tk.Frame):
 
         self.nav_button3 = NavRoundedButton(self, text="Rapport", command=show_content3_callback, width=20)
         self.nav_button3.pack(pady=15, padx=15, fill=tk.X)
+
+        self.nav_button4 = NavRoundedButton(self, text="Evidences", command=show_content4_callback, width=20)
+        self.nav_button4.pack(pady=15, padx=15, fill=tk.X)
 
 
 class EnqueteFrame(tk.Frame):
@@ -61,4 +64,10 @@ class RapportFrame(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent, bg="#ECF0F1")  # Light gray background for content frame
         label = tk.Label(self, text="Rapport d'Enquete", font=("Arial", 20, "bold"), bg="#ECF0F1", fg="#34495E")  # Dark text for contrast
+        label.pack(pady=20)
+
+class EvidenceFrame(tk.Frame):
+    def __init__(self, parent):
+        super().__init__(parent, bg="#ECF0F1")  # Light gray background for content frame
+        label = tk.Label(self, text="Evidence", font=("Arial", 20, "bold"), bg="#ECF0F1", fg="#34495E")  # Dark text for contrast
         label.pack(pady=20)
