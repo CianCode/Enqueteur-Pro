@@ -53,3 +53,54 @@ CREATE TABLE Report (
     content TEXT,
     investigation_relation INT REFERENCES Investigation(id_investigation)
 );
+
+
+-- Inserting into TypeCrime
+INSERT INTO TypeCrime (label) VALUES
+('Theft'),
+('Assault'),
+('Burglary'),
+('Murder');
+
+-- Inserting into TypeEvidence
+INSERT INTO TypeEvidence (label) VALUES
+('Fingerprint'),
+('DNA'),
+('Weapon'),
+('Footprint');
+
+-- Inserting into TypePersonne
+INSERT INTO TypePersonne (label) VALUES
+('Suspect'),
+('Witness'),
+('Victim'),
+('Investigator');
+
+-- Inserting into Investigation
+INSERT INTO Investigation (name, type_crime, status, date_open, date_close) VALUES
+('Investigation into Theft at Store', 1, 'open', '2024-10-01', NULL),
+('Assault Investigation at Park', 2, 'closed', '2024-08-15', '2024-10-10'),
+('Burglary at 123 Elm Street', 3, 'open', '2024-09-05', NULL),
+('Murder Investigation: John Doe', 4, 'closed', '2024-07-20', '2024-10-05');
+
+-- Inserting into Evidence
+INSERT INTO Evidence (id_type_evidence, description) VALUES
+(1, 'Fingerprint found on the window'),
+(2, 'DNA sample found at the crime scene'),
+(3, 'Knife with blood stains'),
+(4, 'Footprint matching size 10 shoe found near the house');
+
+-- Inserting into Person
+INSERT INTO Person (first_name, last_name, description, alibi, type_personne) VALUES
+('John', 'Smith', 'A suspect in the theft case', 'Was at home during the incident', 1),
+('Jane', 'Doe', 'Witness to the assault', 'Saw the event but did not intervene', 2),
+('Mark', 'Taylor', 'Victim of the burglary', 'Home at the time of the break-in', 3),
+('Sarah', 'Connor', 'Lead Investigator', 'Working on case', 4);
+
+-- Inserting into Report
+INSERT INTO Report (date_creation, content, investigation_relation) VALUES
+('2024-10-02', 'Witness statement from Jane Doe describing the assault.', 2),
+('2024-10-12', 'Fingerprint analysis report from the theft investigation.', 1),
+('2024-09-20', 'Initial report on the burglary at Elm Street with evidence collected.', 3),
+('2024-10-06', 'Summary of the investigation into the murder of John Doe, case closed.', 4);
+
