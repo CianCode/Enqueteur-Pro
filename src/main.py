@@ -1,6 +1,6 @@
 import tkinter as tk
 
-from interface.gui import DatabaseApp  # Import the DatabaseApp class
+from interface.full_interface import DatabaseApp  # Import the DatabaseApp class
 from src.controllers.investigation_controller import InvestigationController  # Import the InvestigationController class
 
 # Create the Tkinter window and pass it to the DatabaseApp class
