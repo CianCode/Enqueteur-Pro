@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 
 from src.controllers.investigation_controller import InvestigationController
 
@@ -25,6 +25,8 @@ class Navbar(tk.Frame):
 
 class DatabaseApp:
     def __init__(self, root):
+        self.investigation_name_label = None
+        self.detail_title_label = None
         self.root = root
         self.root.title("Database Application")
         self.root.geometry("900x600")
@@ -58,6 +60,7 @@ class DatabaseApp:
             "personne": self.create_empty_frame("Personnes"),
             "rapport": self.create_empty_frame("Rapports"),
             "evidences": self.create_empty_frame("Évidences"),
+            "detail": self.create_detail_frame(),
         }
 
         # Positionnement de chaque frame
@@ -112,17 +115,22 @@ class DatabaseApp:
         title_label.pack(fill="x", padx=10, pady=5)
 
         # Création du tableau (Treeview)
-        columns = ("nom", "type", "statut", "date_ouverture")
+        columns = ("id", "nom", "type", "statut", "date_ouverture")
         tree = ttk.Treeview(frame, columns=columns, show="headings", height=10)
+        tree.heading("id", text="ID")
         tree.heading("nom", text="Nom")
         tree.heading("type", text="Type")
         tree.heading("statut", text="Statut")
         tree.heading("date_ouverture", text="Date Ouverture")
+        tree.column("id", width=50, anchor="center")
         tree.column("nom", width=150, anchor="center")
         tree.column("type", width=100, anchor="center")
         tree.column("statut", width=100, anchor="center")
         tree.column("date_ouverture", width=120, anchor="center")
         tree.pack(fill="both", expand=True, padx=10, pady=10)
+
+        # Bind double-click event to the treeview
+        tree.bind("<Double-1>", lambda event: self.on_investigation_click(event, tree))
 
         self.load_investigations(tree)  # Charger les données dans le tableau
 
@@ -143,11 +151,38 @@ class DatabaseApp:
             # Gérer les erreurs si la base n'est pas connectée
             print(f"Erreur lors du chargement des données : {e}")
 
+    def create_detail_frame(self):
+        """Créer une frame pour afficher les détails d'une enquête."""
+        frame = tk.Frame(self.content, bg="#ECF0F1")
 
-# Lancer l'application
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = DatabaseApp(root)
-    root.mainloop()
+        # Label pour le titre de l'enquête
+        self.detail_title_label = tk.Label(
+            frame, text="Détails de l'enquête", font=("Helvetica", 18, "bold"), bg="#ECF0F1", fg="#2C3E50"
+        )
+        self.detail_title_label.pack(pady=20)
+
+        # Label pour afficher le nom de l'enquête
+        self.investigation_name_label = tk.Label(
+            frame, text="", font=("Helvetica", 14), bg="#ECF0F1", fg="#34495E"
+        )
+        self.investigation_name_label.pack(pady=10)
+
+        return frame
 
 
+    def on_investigation_click(self, event, tree):
+        """Handle clicking on an investigation to display details."""
+        selected_item = tree.selection()
+        if selected_item:
+            # Retrieve the selected row's data
+            item_data = tree.item(selected_item[0])["values"]
+            if item_data:
+                investigation_id = item_data[0]  # Assuming the first column is the ID
+                investigation_name = item_data[1]  # Assuming the second column is the name
+
+                # Display details in the "detail" frame
+                self.detail_title_label.config(text=f"Détails de l'enquête : {investigation_name}")
+                self.investigation_name_label.config(text=f"Nom de l'enquête : {investigation_name}")
+                self.show_frame("detail")
+        else:
+            messagebox.showwarning("Aucune sélection", "Veuillez sélectionner une enquête.")
