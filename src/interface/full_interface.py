@@ -82,10 +82,10 @@ class DatabaseApp:
         self.show_welcome_message()
 
     def create_empty_frame(self, title):
-        """Créer un frame vide avec un titre temporaire."""
+        """Créer un frame vide avec un titre temporaire en haut à gauche."""
         frame = tk.Frame(self.content, bg="#ECF0F1")
-        label = tk.Label(frame, text=title, font=("Helvetica", 18, "bold"), bg="#ECF0F1", fg="#2C3E50")
-        label.pack(expand=True)
+        label = tk.Label(frame, text=title, font=("Helvetica", 18, "bold"), bg="#ECF0F1", fg="#2C3E50", anchor="w")
+        label.pack(anchor="nw", padx=10, pady=10)  # Placer en haut à gauche avec des marges
         return frame
 
     def show_frame(self, frame_name):
