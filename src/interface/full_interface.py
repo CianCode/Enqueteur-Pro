@@ -116,8 +116,58 @@ class DatabaseApp:
     def show_evidences(self):
         self.show_frame("evidences")
 
+    def create_investigation_frame(self):
+        """Créer une frame pour afficher les enquêtes avec un tableau."""
+        frame = tk.Frame(self.content, bg="#ECF0F1")
 
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = DatabaseApp(root)
-    root.mainloop()
+        # Titre de la section
+        title_label = tk.Label(
+            frame,
+            text="Liste des Enquêtes",
+            font=("Helvetica", 16, "bold"),
+            bg="#ECF0F1",
+            fg="#2C3E50",
+            anchor="w"
+        )
+        title_label.pack(fill="x", padx=10, pady=5)
+
+        # Création du tableau (Treeview)
+        columns = ("nom", "type", "statut", "date_ouverture")
+        tree = ttk.Treeview(frame, columns=columns, show="headings", height=10)
+        tree.heading("nom", text="Nom")
+        tree.heading("type", text="Type")
+        tree.heading("statut", text="Statut")
+        tree.heading("date_ouverture", text="Date Ouverture")
+        tree.column("nom", width=150, anchor="center")
+        tree.column("type", width=100, anchor="center")
+        tree.column("statut", width=100, anchor="center")
+        tree.column("date_ouverture", width=120, anchor="center")
+        tree.pack(fill="both", expand=True, padx=10, pady=10)
+
+        # Bouton pour charger les données
+        load_button = ttk.Button(
+            frame,
+            text="Charger les données",
+            command=lambda: self.load_investigations(tree)
+        )
+        load_button.pack(pady=5)
+
+        return frame
+
+    def load_investigations(self, tree):
+        """Charger les données des enquêtes dans le tableau."""
+        # Exemple de récupération des données depuis la base (adapter avec votre méthode)
+        data = [
+            ("Enquête 1", "Criminel", "Ouverte", "2024-11-01"),
+            ("Enquête 2", "Civil", "Fermée", "2024-10-15"),
+            ("Enquête 3", "Financier", "En cours", "2024-11-10"),
+        ]
+        # Supprimer les anciennes données
+        for item in tree.get_children():
+            tree.delete(item)
+        # Ajouter les nouvelles données
+        for row in data:
+            tree.insert("", "end", values=row)
+
+
+
