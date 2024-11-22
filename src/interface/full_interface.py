@@ -275,13 +275,9 @@ class DatabaseApp:
         horizontal_container = tk.Frame(frame, bg="#ECF0F1")
         horizontal_container.pack(fill="x", padx=20, pady=10)
 
-        # Création des trois conteneurs horizontaux
-        investigation_id = 1  # Replace with the actual investigation ID
-        self.create_horizontal_sub_container(horizontal_container, "Personnes", investigation_id)
-        self.create_horizontal_sub_container(horizontal_container, "Évidences", investigation_id)
-
-        # Placeholder for the third container
-        self.create_horizontal_sub_container(horizontal_container, "Autre Information", investigation_id)
+        # Add to the frame as the container for sub-sections
+        # You will dynamically update this container later
+        self.horizontal_container = horizontal_container
 
         # Bouton de retour
         back_button = ttk.Button(
@@ -314,7 +310,24 @@ class DatabaseApp:
                 self.investigation_status_label.config(text=f"Statut de l'enquête : {investigation_status}")
                 self.investigation_date_label.config(text=f"Date d'ouverture : {investigation_date}")
 
+                # Dynamically update the sub-containers with the investigation ID
+                self.update_detail_frame(investigation_id)
+
                 # Show the detail frame
                 self.show_frame("detail")
         else:
             messagebox.showwarning("Aucune sélection", "Veuillez sélectionner une enquête.")
+
+    def update_detail_frame(self, investigation_id):
+        """Update the detail frame's sub-containers with the given investigation ID."""
+        # Get the correct container for the sub-sections
+        horizontal_container = self.horizontal_container  # Access the correct container
+
+        # Clear the existing content in the container
+        for widget in horizontal_container.winfo_children():
+            widget.destroy()
+
+        # Recreate the sub-containers with the selected investigation_id
+        self.create_horizontal_sub_container(horizontal_container, "Personnes", investigation_id)
+        self.create_horizontal_sub_container(horizontal_container, "Évidences", investigation_id)
+        self.create_horizontal_sub_container(horizontal_container, "Autre Information", investigation_id)
