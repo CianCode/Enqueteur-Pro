@@ -158,6 +158,59 @@ class DatabaseApp:
             # Gérer les erreurs si la base n'est pas connectée
             print(f"Erreur lors du chargement des données : {e}")
 
+    def create_horizontal_sub_container(self, parent, title, investigation_id):
+        """Create a horizontal sub-container with a title and a list of people or evidence."""
+        # Frame for each container
+        container = tk.Frame(parent, bg="#E8F6F3", bd=2, relief="groove")
+        container.pack(side="left", expand=True, fill="both", padx=5, pady=5)
+
+        # Title of the container (without inside the container)
+        container_title = tk.Label(
+            container,
+            text=title,
+            font=("Helvetica", 14, "bold"),
+            bg="#E8F6F3",
+            fg="#2C3E50",
+            anchor="center",
+        )
+        container_title.pack(fill="x", padx=5, pady=5)
+
+        # Depending on the title, we show either people or evidence in the container
+        if title == "Personnes":
+            self.populate_people_list(container, investigation_id)
+        elif title == "Évidences":
+            self.populate_evidence_list(container, investigation_id)
+
+    def populate_people_list(self, container, investigation_id):
+        """Populate the container with a list of people related to the investigation."""
+        # Get the data for people related to the investigation
+        people_data = self.controller.list_investigation_for_people(investigation_id)
+
+        # Create the Listbox for people
+        listbox = tk.Listbox(container, font=("Helvetica", 12), bg="#E8F6F3", fg="#2C3E50")
+        listbox.pack(fill="both", expand=True, padx=5, pady=10)
+
+        # Insert the data into the Listbox
+        for person in people_data:
+            full_name = f"{person['first_name']} {person['last_name']}"  # Full name
+            person_type = person['person_type']  # Person type (suspect, witness, etc.)
+            listbox.insert(tk.END, f"{full_name} - {person_type}")
+
+    def populate_evidence_list(self, container, investigation_id):
+        """Populate the container with a list of evidence related to the investigation."""
+        # Get the data for evidence related to the investigation
+        evidence_data = self.controller.list_investigation_for_evidences(investigation_id)
+
+        # Create the Listbox for evidence
+        listbox = tk.Listbox(container, font=("Helvetica", 12), bg="#E8F6F3", fg="#2C3E50")
+        listbox.pack(fill="both", expand=True, padx=5, pady=10)
+
+        # Insert the data into the Listbox
+        for evidence in evidence_data:
+            evidence_description = evidence['description']  # Description
+            evidence_type = evidence['evidence_type']  # Evidence type
+            listbox.insert(tk.END, f"{evidence_description} - {evidence_type}")
+
     def create_detail_frame(self):
         """Créer une frame pour afficher les détails d'une enquête sélectionnée, avec trois conteneurs alignés horizontalement."""
         frame = tk.Frame(self.content, bg="#ECF0F1")
@@ -223,8 +276,12 @@ class DatabaseApp:
         horizontal_container.pack(fill="x", padx=20, pady=10)
 
         # Création des trois conteneurs horizontaux
-        for i in range(1, 4):  # Crée trois conteneurs
-            self.create_horizontal_sub_container(horizontal_container, f"Titre {i}")
+        investigation_id = 1  # Replace with the actual investigation ID
+        self.create_horizontal_sub_container(horizontal_container, "Personnes", investigation_id)
+        self.create_horizontal_sub_container(horizontal_container, "Évidences", investigation_id)
+
+        # Placeholder for the third container
+        self.create_horizontal_sub_container(horizontal_container, "Autre Information", investigation_id)
 
         # Bouton de retour
         back_button = ttk.Button(
@@ -236,33 +293,6 @@ class DatabaseApp:
 
         return frame
 
-    def create_horizontal_sub_container(self, parent, title):
-        """Créer un sous-conteneur horizontal avec un titre."""
-        # Frame individuel pour chaque conteneur
-        container = tk.Frame(parent, bg="#E8F6F3", bd=2, relief="groove")
-        container.pack(side="left", expand=True, fill="both", padx=5, pady=5)
-
-        # Titre du conteneur
-        container_title = tk.Label(
-            container,
-            text=title,
-            font=("Helvetica", 14, "bold"),
-            bg="#E8F6F3",
-            fg="#2C3E50",
-            anchor="center",
-        )
-        container_title.pack(fill="x", padx=5, pady=5)
-
-        # Contenu de chaque conteneur (placeholder par défaut)
-        placeholder_label = tk.Label(
-            container,
-            text="Contenu à afficher ici...",
-            font=("Helvetica", 12),
-            bg="#E8F6F3",
-            fg="#2C3E50",
-            anchor="center",
-        )
-        placeholder_label.pack(fill="both", expand=True, padx=5, pady=10)
 
     def on_investigation_click(self, event, tree):
         """Handle clicking on an investigation to display details."""

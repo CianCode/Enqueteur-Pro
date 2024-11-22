@@ -87,27 +87,55 @@ class InvestigationController:
     def list_investigation_for_people(self, investigation_id):
         """List all people related to a given investigation (suspects, witnesses)."""
         query = """
-        SELECT p.first_name, p.last_name, tp.label AS person_type
-        FROM Person p
-        JOIN TypePersonne tp ON p.type_personne = tp.id
-        JOIN Report r ON r.investigation_relation = p.id_personne
-        WHERE r.investigation_relation = %s;
+        SELECT 
+            p.first_name, 
+            p.last_name, 
+            tp.label AS person_type
+        FROM 
+            Person p
+        JOIN 
+            TypePersonne tp ON p.type_personne = tp.id
+        WHERE 
+            p.link_investigation = %s;  -- Filter by investigation ID
         """
         params = (investigation_id,)
         result = self.db.execute_query(query, params, fetch_results=True)
-        return result
+
+        # Convert result to list of dictionaries
+        people = []
+        for row in result:
+            people.append({
+                'first_name': row[0],
+                'last_name': row[1],
+                'person_type': row[2]
+            })
+        return people
 
     def list_investigation_for_evidences(self, investigation_id):
         """List all evidences related to a given investigation."""
         query = """
-        SELECT e.id_evidence, e.description, te.label AS evidence_type
-        FROM Evidence e
-        JOIN TypeEvidence te ON e.id_type_evidence = te.id_type_evidence
-        WHERE e.id_evidence IN (SELECT id_evidence FROM Report WHERE investigation_relation = %s);
+        SELECT 
+            e.id_evidence, 
+            e.description, 
+            te.label AS evidence_type
+        FROM 
+            Evidence e
+        JOIN 
+            TypeEvidence te ON e.id_type_evidence = te.id_type_evidence
+        WHERE 
+            e.link_investigation = %s;  -- Filter by investigation ID
         """
         params = (investigation_id,)
         result = self.db.execute_query(query, params, fetch_results=True)
-        return result
+
+        # Convert result to list of dictionaries
+        evidences = []
+        for row in result:
+            evidences.append({
+                'description': row[1],
+                'evidence_type': row[2]
+            })
+        return evidences
 
     def get_crime_type_label(self, type_crime_id):
         """Fetch the label of a crime type from the database by its ID."""
