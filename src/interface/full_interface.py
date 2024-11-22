@@ -25,6 +25,9 @@ class Navbar(tk.Frame):
 
 class DatabaseApp:
     def __init__(self, root):
+        self.investigation_status_label = None
+        self.investigation_type_label = None
+        self.investigation_date_label = None
         self.investigation_name_label = None
         self.detail_title_label = None
         self.root = root
@@ -146,29 +149,120 @@ class DatabaseApp:
                 tree.delete(item)
             # Ajouter les nouvelles données
             for row in data:
-                tree.insert("", "end", values=row)
+                type_crime_id = row[2]  # Assuming the crime type ID is at index 2
+                type_crime_label = self.controller.get_crime_type_label(type_crime_id)
+                row_with_label = list(row)  # Convert tuple to list to modify it
+                row_with_label[2] = type_crime_label  # Replace the crime type ID with its label
+                tree.insert("", "end", values=row_with_label)  # Insert row with the crime type label
         except Exception as e:
             # Gérer les erreurs si la base n'est pas connectée
             print(f"Erreur lors du chargement des données : {e}")
 
     def create_detail_frame(self):
-        """Créer une frame pour afficher les détails d'une enquête."""
+        """Créer une frame pour afficher les détails d'une enquête sélectionnée, avec trois conteneurs alignés horizontalement."""
         frame = tk.Frame(self.content, bg="#ECF0F1")
 
-        # Label pour le titre de l'enquête
+        # Titre principal de la section
         self.detail_title_label = tk.Label(
-            frame, text="Détails de l'enquête", font=("Helvetica", 18, "bold"), bg="#ECF0F1", fg="#2C3E50"
+            frame,
+            text="Détails de l'enquête",
+            font=("Helvetica", 18, "bold"),
+            bg="#ECF0F1",
+            fg="#2C3E50",
+            anchor="w",
         )
-        self.detail_title_label.pack(pady=20)
+        self.detail_title_label.pack(fill="x", padx=10, pady=10)
 
-        # Label pour afficher le nom de l'enquête
+        # Conteneur principal pour les détails de l'enquête
+        details_container = tk.Frame(frame, bg="#D5DBDB", bd=2, relief="groove")
+        details_container.pack(fill="x", padx=20, pady=10)
+
+        # Labels pour les informations détaillées dans le conteneur principal
         self.investigation_name_label = tk.Label(
-            frame, text="", font=("Helvetica", 14), bg="#ECF0F1", fg="#34495E"
+            details_container,
+            text="Nom de l'enquête :",
+            font=("Helvetica", 14),
+            bg="#D5DBDB",
+            fg="#2C3E50",
+            anchor="w",
         )
-        self.investigation_name_label.pack(pady=10)
+        self.investigation_name_label.pack(fill="x", padx=10, pady=5)
+
+        self.investigation_type_label = tk.Label(
+            details_container,
+            text="Type de l'enquête :",
+            font=("Helvetica", 14),
+            bg="#D5DBDB",
+            fg="#2C3E50",
+            anchor="w",
+        )
+        self.investigation_type_label.pack(fill="x", padx=10, pady=5)
+
+        self.investigation_status_label = tk.Label(
+            details_container,
+            text="Statut de l'enquête :",
+            font=("Helvetica", 14),
+            bg="#D5DBDB",
+            fg="#2C3E50",
+            anchor="w",
+        )
+        self.investigation_status_label.pack(fill="x", padx=10, pady=5)
+
+        self.investigation_date_label = tk.Label(
+            details_container,
+            text="Date d'ouverture :",
+            font=("Helvetica", 14),
+            bg="#D5DBDB",
+            fg="#2C3E50",
+            anchor="w",
+        )
+        self.investigation_date_label.pack(fill="x", padx=10, pady=5)
+
+        # Conteneur horizontal pour les trois sous-sections
+        horizontal_container = tk.Frame(frame, bg="#ECF0F1")
+        horizontal_container.pack(fill="x", padx=20, pady=10)
+
+        # Création des trois conteneurs horizontaux
+        for i in range(1, 4):  # Crée trois conteneurs
+            self.create_horizontal_sub_container(horizontal_container, f"Titre {i}")
+
+        # Bouton de retour
+        back_button = ttk.Button(
+            frame,
+            text="Retour",
+            command=lambda: self.show_frame("enquete"),
+        )
+        back_button.pack(pady=10)
 
         return frame
 
+    def create_horizontal_sub_container(self, parent, title):
+        """Créer un sous-conteneur horizontal avec un titre."""
+        # Frame individuel pour chaque conteneur
+        container = tk.Frame(parent, bg="#E8F6F3", bd=2, relief="groove")
+        container.pack(side="left", expand=True, fill="both", padx=5, pady=5)
+
+        # Titre du conteneur
+        container_title = tk.Label(
+            container,
+            text=title,
+            font=("Helvetica", 14, "bold"),
+            bg="#E8F6F3",
+            fg="#2C3E50",
+            anchor="center",
+        )
+        container_title.pack(fill="x", padx=5, pady=5)
+
+        # Contenu de chaque conteneur (placeholder par défaut)
+        placeholder_label = tk.Label(
+            container,
+            text="Contenu à afficher ici...",
+            font=("Helvetica", 12),
+            bg="#E8F6F3",
+            fg="#2C3E50",
+            anchor="center",
+        )
+        placeholder_label.pack(fill="both", expand=True, padx=5, pady=10)
 
     def on_investigation_click(self, event, tree):
         """Handle clicking on an investigation to display details."""
@@ -179,10 +273,18 @@ class DatabaseApp:
             if item_data:
                 investigation_id = item_data[0]  # Assuming the first column is the ID
                 investigation_name = item_data[1]  # Assuming the second column is the name
+                investigation_type = item_data[2]  # Assuming the third column is the type (now label)
+                investigation_status = item_data[3]  # Assuming the fourth column is the status
+                investigation_date = item_data[4]  # Assuming the fifth column is the date
 
-                # Display details in the "detail" frame
+                # Update the labels in the detail frame
                 self.detail_title_label.config(text=f"Détails de l'enquête : {investigation_name}")
                 self.investigation_name_label.config(text=f"Nom de l'enquête : {investigation_name}")
+                self.investigation_type_label.config(text=f"Type de l'enquête : {investigation_type}")
+                self.investigation_status_label.config(text=f"Statut de l'enquête : {investigation_status}")
+                self.investigation_date_label.config(text=f"Date d'ouverture : {investigation_date}")
+
+                # Show the detail frame
                 self.show_frame("detail")
         else:
             messagebox.showwarning("Aucune sélection", "Veuillez sélectionner une enquête.")

@@ -108,3 +108,11 @@ class InvestigationController:
         params = (investigation_id,)
         result = self.db.execute_query(query, params, fetch_results=True)
         return result
+
+    def get_crime_type_label(self, type_crime_id):
+        """Fetch the label of a crime type from the database by its ID."""
+        query = "SELECT label FROM TypeCrime WHERE id_crime = %s;"
+        params = (type_crime_id,)
+        result = self.db.execute_query(query, params, fetch_results=True)
+        return result[0][0] if result else None
+
