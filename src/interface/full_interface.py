@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 
+from src.controllers.investigation_controller import InvestigationController
+
 
 class Navbar(tk.Frame):
     def __init__(self, parent, show_enquete, show_personne, show_rapport, show_evidences):
@@ -27,6 +29,8 @@ class DatabaseApp:
         self.root.title("Database Application")
         self.root.geometry("900x600")
         self.root.configure(bg="#ECF0F1")
+
+        self.controller = InvestigationController()
 
         # Configuration du style général
         self.style = ttk.Style()
@@ -120,30 +124,24 @@ class DatabaseApp:
         tree.column("date_ouverture", width=120, anchor="center")
         tree.pack(fill="both", expand=True, padx=10, pady=10)
 
-        # Bouton pour charger les données
-        load_button = ttk.Button(
-            frame,
-            text="Charger les données",
-            command=lambda: self.load_investigations(tree),
-        )
-        load_button.pack(pady=5)
+        self.load_investigations(tree)  # Charger les données dans le tableau
 
         return frame
 
     def load_investigations(self, tree):
-        """Charger les données des enquêtes dans le tableau."""
-        # Exemple de récupération des données depuis la base (adapter avec votre méthode)
-        data = [
-            ("Enquête 1", "Criminel", "Ouverte", "2024-11-01"),
-            ("Enquête 2", "Civil", "Fermée", "2024-10-15"),
-            ("Enquête 3", "Financier", "En cours", "2024-11-10"),
-        ]
-        # Supprimer les anciennes données
-        for item in tree.get_children():
-            tree.delete(item)
-        # Ajouter les nouvelles données
-        for row in data:
-            tree.insert("", "end", values=row)
+        """Charger les données des enquêtes dans le tableau depuis la base de données."""
+        try:
+            # Récupérer les données depuis la base
+            data = self.controller.list_investigations()  # Appeler la méthode pour récupérer les données
+            # Supprimer les anciennes données dans le tableau
+            for item in tree.get_children():
+                tree.delete(item)
+            # Ajouter les nouvelles données
+            for row in data:
+                tree.insert("", "end", values=row)
+        except Exception as e:
+            # Gérer les erreurs si la base n'est pas connectée
+            print(f"Erreur lors du chargement des données : {e}")
 
 
 # Lancer l'application
