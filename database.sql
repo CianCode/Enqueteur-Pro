@@ -48,6 +48,11 @@ CREATE TABLE Person (
     type_personne INT REFERENCES TypePersonne(id)
 );
 
+CREATE TABLE links_investigation_person (
+    id_personne INT REFERENCES Person(id_personne),
+    id_investigation INT REFERENCES Investigation(id_investigation)
+);
+
 -- Table: Report
 CREATE TABLE Report (
     id_report SERIAL PRIMARY KEY,

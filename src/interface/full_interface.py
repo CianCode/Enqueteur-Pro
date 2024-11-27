@@ -331,3 +331,5 @@ class DatabaseApp:
         self.create_horizontal_sub_container(horizontal_container, "Personnes", investigation_id)
         self.create_horizontal_sub_container(horizontal_container, "Évidences", investigation_id)
         self.create_horizontal_sub_container(horizontal_container, "Autre Information", investigation_id)
+
+        self.content.update()  # Update the content to show the new sub-containers
