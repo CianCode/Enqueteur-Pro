@@ -112,7 +112,7 @@ class InvestigationController:
         return people
 
     def list_investigation_for_evidences(self, investigation_id):
-        """List all evidences related to a given investigation."""
+        """List all evidences related to a given investigation.   """
         query = """
         SELECT 
             e.id_evidence, 
