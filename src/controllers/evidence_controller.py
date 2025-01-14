@@ -14,6 +14,13 @@ class EvidenceController:
         result = self.db.execute_query(query, params)
         return result[0][0] if result else None
 
+    def get_evidence_by_id(self, evidence_id):
+        """Get a piece of evidence by its ID."""
+        query = "SELECT * FROM Evidence WHERE id_evidence = %s;"
+        params = (evidence_id,)
+        result = self.db.execute_query(query, params, fetch_results=True)
+        return result[0] if result else None
+
     def delete_evidence(self, evidence_id):
         """Delete an evidence by its ID."""
         query = "DELETE FROM Evidence WHERE id_evidence = %s;"

@@ -14,6 +14,13 @@ class PersonneController:
         result = self.db.execute_query(query, params, fetch_results=True)
         return result[0][0] if result else None
 
+    def get_person_by_id(self, person_id):
+        """Get a person by their ID."""
+        query = "SELECT * FROM Person WHERE id_personne = %s;"
+        params = (person_id,)
+        result = self.db.execute_query(query, params, fetch_results=True)
+        return result[0] if result else None
+
     def delete_person(self, person_id):
         """Delete a person by their ID."""
         query = "DELETE FROM Person WHERE id_personne = %s;"

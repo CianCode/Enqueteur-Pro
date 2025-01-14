@@ -32,7 +32,8 @@ class DatabaseApp:
         self.detail_title_label = None
         self.root = root
         self.root.title("Database Application")
-        self.root.geometry("900x600")
+        #self.root.geometry("900x600")
+        root.state('zoomed')
         self.root.configure(bg="#ECF0F1")
 
         self.controller = InvestigationController()
@@ -320,7 +321,7 @@ class DatabaseApp:
 
     def update_detail_frame(self, investigation_id):
         """Update the detail frame's sub-containers with the given investigation ID."""
-        # Get the correct container for the sub-sections
+        # Get the correct container for the subsections
         horizontal_container = self.horizontal_container  # Access the correct container
 
         # Clear the existing content in the container

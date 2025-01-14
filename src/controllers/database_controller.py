@@ -46,7 +46,7 @@ class DatabaseController:
             if fetch_results:
                 return self.cursor.fetchall()
             self.conn.commit()
-        except Exception as e:
+        except psycopg2.DatabaseError as e:
             print(f"Error executing query: {e}")
             self.conn.rollback()
             raise
